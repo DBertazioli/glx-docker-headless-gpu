@@ -146,5 +146,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # # (3) Run Xorg server + x11vnc + X applications
 # # see run.sh for details
-# COPY run.sh /run.sh
+COPY run.sh /run.sh
 # #CMD ["bash", "/run.sh"]
