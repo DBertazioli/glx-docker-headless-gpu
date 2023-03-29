@@ -35,6 +35,11 @@ RUN dpkg --add-architecture i386 && \
         python \
         kmod \
         libc6:i386 \
+        libglvnd-dev \
+        x11-xkb-utils \
+        xauth \
+        xfonts-base \
+        xkb-data && \
         pkg-config \
         libelf-dev && \
     rm -rf /var/lib/apt/lists/*
@@ -43,9 +48,9 @@ RUN dpkg --add-architecture i386 && \
 # After this installation, command Xorg and xinit can be used in the container
 # if you need full ubuntu desktop environment, the line below should be added.
         # ubuntu-desktop \
-RUN apt-get update && apt-get install -y \
-        xinit && \
-    rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#         xinit && \
+#     rm -rf /var/lib/apt/lists/*
 
 # (1-3) Install NVIDIA drivers, including X graphic drivers
 # Same command as nvidia/driver, except --x-{prefix,module-path,library-path,sysconfig-path} are omitted in order to make use default path and enable X drivers.
@@ -87,53 +92,59 @@ RUN cd /tmp && \
 # Note: x11vnc in ubuntu18.04 is useless beacuse of stack smashing bug. See below to manual compilation.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         mesa-utils \
-        x11-apps && \
+        xfce4 && \
     rm -rf /var/lib/apt/lists/*
 
-# solution for the `stack smashing detected` issue
-# https://github.com/LibVNC/x11vnc/issues/61
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        automake autoconf libssl-dev xorg-dev libvncserver-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    git clone https://github.com/LibVNC/x11vnc.git && \
-    cd x11vnc && \
-    ./autogen.sh && \
-    make && \
-    cp src/x11vnc /usr/bin/x11vnc
 
-# (2-2) Optional vulkan support
-# vulkan-utils includes vulkan-smoketest, benchmark software of vulkan API
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libvulkan1 vulkan-utils && \
-    rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         mesa-utils \
+#         x11-apps && \
+#     rm -rf /var/lib/apt/lists/*
 
-# for test
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        firefox openbox && \
-    rm -rf /var/lib/apt/lists/*
+# # solution for the `stack smashing detected` issue
+# # https://github.com/LibVNC/x11vnc/issues/61
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         automake autoconf libssl-dev xorg-dev libvncserver-dev && \
+#     rm -rf /var/lib/apt/lists/* && \
+#     git clone https://github.com/LibVNC/x11vnc.git && \
+#     cd x11vnc && \
+#     ./autogen.sh && \
+#     make && \
+#     cp src/x11vnc /usr/bin/x11vnc
 
-# sound driver and GTK library
-# If you want to use sounds on docker, try `pulseaudio --start`
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      alsa pulseaudio libgtk2.0-0 && \
-    rm -rf /var/lib/apt/lists/*
+# # (2-2) Optional vulkan support
+# # vulkan-utils includes vulkan-smoketest, benchmark software of vulkan API
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         libvulkan1 vulkan-utils && \
+#     rm -rf /var/lib/apt/lists/*
 
-# novnc
-# download websockify as well
-RUN wget https://github.com/novnc/noVNC/archive/v1.1.0.zip && \
-  unzip -q v1.1.0.zip && \
-  rm -rf v1.1.0.zip && \
-  git clone https://github.com/novnc/websockify /noVNC-1.1.0/utils/websockify
+# # for test
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         firefox openbox && \
+#     rm -rf /var/lib/apt/lists/*
 
-# Xorg segfault error
-# dbus-core: error connecting to system bus: org.freedesktop.DBus.Error.FileNotFound (Failed to connect to socket /var/run/dbus/system_bus_socket: No such file or directory)
-# related? https://github.com/Microsoft/WSL/issues/2016
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      dbus-x11 \
-      libdbus-c++-1-0v5 && \
-    rm -rf /var/lib/apt/lists/*
+# # sound driver and GTK library
+# # If you want to use sounds on docker, try `pulseaudio --start`
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#       alsa pulseaudio libgtk2.0-0 && \
+#     rm -rf /var/lib/apt/lists/*
 
-# (3) Run Xorg server + x11vnc + X applications
-# see run.sh for details
-COPY run.sh /run.sh
-#CMD ["bash", "/run.sh"]
+# # novnc
+# # download websockify as well
+# RUN wget https://github.com/novnc/noVNC/archive/v1.1.0.zip && \
+#   unzip -q v1.1.0.zip && \
+#   rm -rf v1.1.0.zip && \
+#   git clone https://github.com/novnc/websockify /noVNC-1.1.0/utils/websockify
+
+# # Xorg segfault error
+# # dbus-core: error connecting to system bus: org.freedesktop.DBus.Error.FileNotFound (Failed to connect to socket /var/run/dbus/system_bus_socket: No such file or directory)
+# # related? https://github.com/Microsoft/WSL/issues/2016
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#       dbus-x11 \
+#       libdbus-c++-1-0v5 && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # (3) Run Xorg server + x11vnc + X applications
+# # see run.sh for details
+# COPY run.sh /run.sh
+# #CMD ["bash", "/run.sh"]
