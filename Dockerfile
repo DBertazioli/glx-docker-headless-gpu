@@ -39,7 +39,7 @@ RUN dpkg --add-architecture i386 && \
         x11-xkb-utils \
         xauth \
         xfonts-base \
-        xkb-data && \
+        xkb-data \
         pkg-config \
         libelf-dev && \
     rm -rf /var/lib/apt/lists/*
